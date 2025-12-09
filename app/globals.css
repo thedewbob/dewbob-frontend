@@ -177,6 +177,100 @@
     font-style: italic;
     color: hsl(var(--muted-foreground));
   }
+
+  /* WYSIWYG Content Styles - Use site's design system for HTML from Directus */
+  .wysiwyg-content {
+    /* Base text inherits from body */
+  }
+
+  /* Headings use site's H1-H6 styles */
+  .wysiwyg-content h1,
+  .wysiwyg-content h2,
+  .wysiwyg-content h3,
+  .wysiwyg-content h4,
+  .wysiwyg-content h5,
+  .wysiwyg-content h6 {
+    /* Inherits from base layer h1-h6 styles above */
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+  }
+
+  .wysiwyg-content h1:first-child,
+  .wysiwyg-content h2:first-child,
+  .wysiwyg-content h3:first-child {
+    margin-top: 0;
+  }
+
+  .wysiwyg-content p {
+    /* Inherits from base p styles */
+  }
+
+  .wysiwyg-content strong,
+  .wysiwyg-content b {
+    font-weight: 600;
+  }
+
+  .wysiwyg-content em,
+  .wysiwyg-content i {
+    font-style: italic;
+  }
+
+  /* Lists */
+  .wysiwyg-content ol {
+    list-style-type: decimal;
+    margin-left: 2em;
+    margin-bottom: 1.5em;
+    padding-left: 0.5em;
+  }
+
+  .wysiwyg-content ul {
+    list-style-type: disc;
+    margin-left: 2em;
+    margin-bottom: 1.5em;
+    padding-left: 0.5em;
+  }
+
+  .wysiwyg-content ol li,
+  .wysiwyg-content ul li {
+    margin-bottom: 0.5em;
+    padding-left: 0.5em;
+  }
+
+  /* Links use site's accent color */
+  .wysiwyg-content a {
+    /* Inherits from base a styles */
+  }
+
+  /* Blockquotes */
+  .wysiwyg-content blockquote {
+    /* Inherits from base blockquote styles */
+    border-left: 4px solid hsl(var(--accent));
+    padding-left: 1.5em;
+    margin-left: 0;
+    margin-bottom: 1.5em;
+  }
+
+  /* Code */
+  .wysiwyg-content code {
+    background-color: #f5f5f5;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  .wysiwyg-content pre {
+    background-color: #f5f5f5;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin-bottom: 1.5em;
+  }
+
+  .wysiwyg-content pre code {
+    background-color: transparent;
+    padding: 0;
+  }
 }
 
 /* Modern animations */

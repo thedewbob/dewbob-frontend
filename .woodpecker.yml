@@ -1,0 +1,19 @@
+when:
+  branch: main
+  event: [push, manual]
+
+steps:
+  build-and-push:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      registry: registry.dewbob.com
+      repo: registry.dewbob.com/dewbob/dewbob
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+      username:
+        from_secret: REGISTRY_USER
+      password:
+        from_secret: REGISTRY_PASS
+      dockerfile: Dockerfile
+      platforms: linux/amd64

@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { HeaderWrapper as Header } from "@/components/layout/header-wrapper";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export default function NotFound() {
   return (
-    <Container className="py-20">
+    <>
+      <Header />
+      <Container className="py-20">
       <div className="bg-card rounded-[2em] p-12 text-center max-w-2xl mx-auto">
         <h1 className="font-architects-daughter text-6xl text-secondary mb-4">404</h1>
         <h2 className="font-architects-daughter text-3xl text-secondary mb-6">
@@ -20,5 +26,6 @@ export default function NotFound() {
         </Link>
       </div>
     </Container>
+    </>
   );
 }

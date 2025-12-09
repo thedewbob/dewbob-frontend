@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/container";
-import { getPageBySlug, getPublishedBlogs } from "@/lib/directus";
+import { getPageBySlug, getPublishedBlogs, getMenuByLocation } from "@/lib/directus";
 import { notFound } from "next/navigation";
 import { SliderCard } from "@/components/blog/slider-card";
 import Image from "next/image";
@@ -12,8 +12,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const page = await getPageBySlug("home", "dewbob");
+  const heroMenu = await getMenuByLocation('header', 'dewbob'); // Use header menu for hero nav
 
   if (!page || !page.blocks) {
     notFound();
@@ -37,50 +41,41 @@ export default async function Home() {
               className="bg-[#B8472D] min-h-[90vh] flex flex-col py-20 relative"
             >
               {/* In-Hero Navigation - Home page only */}
-              <div className="absolute top-0 left-0 right-0 pt-4">
+              <div className="absolute top-0 left-0 right-0 pt-4 pb-4">
                 <Container>
-                  <nav className="flex items-start justify-start gap-6">
-                    <a
-                      href="/"
-                      className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em]"
-                      style={{ fontFamily: "var(--font-architects-daughter)" }}
-                    >
-                      Home
-                    </a>
-                    <a
-                      href="/shop"
-                      className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em]"
-                      style={{ fontFamily: "var(--font-architects-daughter)" }}
-                    >
-                      Shop
-                    </a>
-                    <a
-                      href="/ask-uncle-bobby"
-                      className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em]"
-                      style={{ fontFamily: "var(--font-architects-daughter)" }}
-                    >
-                      Ask Uncle Bobby
-                    </a>
-                    <a
-                      href="/the-origin-story"
-                      className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em]"
-                      style={{ fontFamily: "var(--font-architects-daughter)" }}
-                    >
-                      The Origin Story
-                    </a>
-                    <a
-                      href="/privacy-policy"
-                      className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em]"
-                      style={{ fontFamily: "var(--font-architects-daughter)" }}
-                    >
-                      Privacy Policy
-                    </a>
+                  {/* Desktop navigation - horizontal */}
+                  <nav className="hidden md:flex items-start justify-start gap-6">
+                    {heroMenu?.menu_items?.map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target={item.target}
+                        className="text-[#FDF8F3] hover:text-white transition-colors text-[1.2em] no-underline font-bold"
+                        style={{ fontFamily: "var(--font-architects-daughter)" }}
+                      >
+                        {item.label}
+                      </a>
+                    ))}
+                  </nav>
+                  {/* Mobile navigation - smaller font, wrapped */}
+                  <nav className="flex md:hidden flex-wrap items-start justify-center gap-3 text-center">
+                    {heroMenu?.menu_items?.map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target={item.target}
+                        className="text-[#FDF8F3] hover:text-white transition-colors text-[0.9em] no-underline font-bold"
+                        style={{ fontFamily: "var(--font-architects-daughter)" }}
+                      >
+                        {item.label}
+                      </a>
+                    ))}
                   </nav>
                 </Container>
               </div>
 
-              {/* Content centered vertically */}
-              <div className="flex-1 flex flex-col justify-center">
+              {/* Content centered vertically - add top padding on mobile for nav */}
+              <div className="flex-1 flex flex-col justify-center pt-16 md:pt-0">
                 <Container>
                   <div className="grid grid-cols-1 md:grid-cols-[60%_40%] gap-12 items-center">
                     {/* Left 60%: Headings, Buttons, Search */}
@@ -135,9 +130,10 @@ export default async function Home() {
                       {/* Search Widget */}
                       {hero.show_search && (
                         <div className="w-full max-w-md mt-8">
-                          <form className="relative">
+                          <form action="/search" method="GET" className="relative">
                             <input
                               type="search"
+                              name="q"
                               placeholder={hero.search_placeholder || "Type to start searching..."}
                               className="w-full px-4 py-2 rounded-[50px] bg-white text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-white"
                               aria-label="Search"
@@ -215,7 +211,7 @@ export default async function Home() {
                   {categories.map((category: any) => (
                     <a
                       key={category.category_id}
-                      href={`/ub_category/${category.category_slug || category.category_id}/`}
+                      href={`/ask-uncle-bobby/category/${category.category_slug || category.category_id}`}
                       className="flex flex-col bg-white border-2 border-[#2D2D3F] rounded-[25px] hover:shadow-lg transition-all no-underline"
                     >
                       {category.image && (
@@ -235,9 +231,10 @@ export default async function Home() {
                           {category.category_name}
                         </h3>
                         {category.description && (
-                          <p className="text-center text-[#1A1A1A] text-sm">
-                            {category.description}
-                          </p>
+                          <div
+                            className="text-center text-[#1A1A1A] text-sm"
+                            dangerouslySetInnerHTML={{ __html: category.description }}
+                          />
                         )}
                       </div>
                     </a>
@@ -266,18 +263,21 @@ async function PostRotatorSection({
   filterFeatured: boolean;
   categoryFilter: number | null;
 }) {
-  // Fetch blogs based on settings
-  const blogs = await getPublishedBlogs(postCount);
+  // Fetch blogs with featured filter applied at DB level
+  let blogs;
+  if (categoryFilter) {
+    const { getBlogsByCategory } = await import("@/lib/directus");
+    blogs = await getBlogsByCategory(categoryFilter, postCount);
+    // If filtering by featured and category, filter in code (getBlogsByCategory doesn't support featured param)
+    if (filterFeatured) {
+      blogs = blogs.filter((blog: any) => blog.featured === true);
+    }
+  } else {
+    // Query DB with featured filter - most efficient
+    blogs = await getPublishedBlogs(postCount, 0, filterFeatured);
+  }
 
-  // Filter by featured if needed - fallback to all if no featured exist
-  const featuredBlogs = blogs.filter((blog: any) => blog.featured === true);
-  const filteredBlogs = filterFeatured && featuredBlogs.length > 0
-    ? featuredBlogs
-    : blogs;
-
-  // Debug output
-  const fs = require('fs');
-  fs.writeFileSync('/tmp/blogs-debug.json', JSON.stringify({ blogs, filteredBlogs }, null, 2));
+  const filteredBlogs = blogs;
 
   return (
     <section className="py-[2em] bg-[#FDF8F3]">
@@ -321,3 +321,7 @@ export const metadata = {
   title: "Ask Uncle Bobby - The worst advice you'll ever love",
   description: "Straight talk, no sugarcoating. Uncle Bobby's got your back with advice that actually works.",
 };
+
+// Enable ISR - Page will revalidate every 60 seconds
+// This means Directus content changes will appear within 1 minute without rebuilding
+export const revalidate = 60;

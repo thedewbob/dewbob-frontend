@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Blog } from "@/lib/directus";
-import { getImageUrl, getImageAlt } from "@/lib/image-utils";
 import { cn } from "@/lib/utils";
 
 interface BlogCardProps {
@@ -10,10 +9,14 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ blog, className }: BlogCardProps) {
-  // Get the first image if available
-  const featuredImage = blog.images?.[0];
-  const imageUrl = getImageUrl(featuredImage);
-  const imageAlt = getImageAlt(featuredImage, blog.post_title);
+  // Get featured image
+  const featuredImageId = typeof blog.featured_image === 'string'
+    ? blog.featured_image
+    : (blog.featured_image as { id?: string })?.id;
+  const imageUrl = featuredImageId
+    ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${featuredImageId}`
+    : null;
+  const imageAlt = blog.post_title;
 
   // Format date
   const publishDate = new Date(blog.created_at).toLocaleDateString("en-US", {

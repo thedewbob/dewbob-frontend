@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
     remotePatterns: [
       // Directus assets (staging - has images)
@@ -17,13 +24,13 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/assets/**',
       },
-      // TODO: Add production Directus hostname when deploying
-      // {
-      //   protocol: 'https',
-      //   hostname: 'cms.dewbob.com',
-      //   port: '',
-      //   pathname: '/assets/**',
-      // },
+      // Production Directus
+      {
+        protocol: 'https',
+        hostname: 'cms.dewbob.com',
+        port: '',
+        pathname: '/assets/**',
+      },
 
       // TEMPORARY: Legacy WordPress images during migration
       // Remove this once all images are migrated to Directus

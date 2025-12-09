@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Blog } from "@/lib/directus";
-import { getImageUrl } from "@/lib/image-utils";
 
 interface SliderCardProps {
   blog: Blog;
@@ -8,7 +7,12 @@ interface SliderCardProps {
 
 export function SliderCard({ blog }: SliderCardProps) {
   const slug = blog.slug || blog.blogs_id?.toString() || "";
-  const imageUrl = getImageUrl(blog.images?.[0]);
+  const featuredImageId = typeof blog.featured_image === 'string'
+    ? blog.featured_image
+    : (blog.featured_image as { id?: string })?.id;
+  const imageUrl = featuredImageId
+    ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${featuredImageId}`
+    : null;
   const title = blog.post_title || "Untitled";
 
   return (

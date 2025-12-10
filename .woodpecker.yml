@@ -20,11 +20,14 @@ steps:
 
   deploy-to-portainer:
     image: alpine/curl
-    environment:
-      PORTAINER_API_KEY:
-        from_secret: PORTAINER_API_KEY
+    depends_on:
+      - build-and-push
+    secrets:
+      - PORTAINER_API_KEY
     commands:
       - |
-        curl -X POST \
-          -H "X-API-Key: ${PORTAINER_API_KEY}" \
+        echo "Triggering Portainer deployment for stack 89..."
+        curl -v -X POST \
+          -H "X-API-Key: $${PORTAINER_API_KEY}" \
           "https://stacks.dewbob.com/api/stacks/89/deploy?endpointId=7"
+        echo "Deployment triggered"

@@ -10,7 +10,7 @@ steps:
       repo: registry.dewbob.com/dewbob/dewbob
       tags:
         - latest
-        - ${CI_COMMIT_SHA:0:8}
+        - ${CI_COMMIT_SHA}
       username:
         from_secret: REGISTRY_USER
       password:

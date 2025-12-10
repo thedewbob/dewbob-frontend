@@ -77,7 +77,7 @@ export default async function Home() {
               {/* Content centered vertically - add top padding on mobile for nav */}
               <div className="flex-1 flex flex-col justify-center pt-16 md:pt-0">
                 <Container>
-                  <div className="grid grid-cols-1 md:grid-cols-[60%_40%] gap-12 items-center">
+                  <div className="grid grid-cols-1 xl:grid-cols-[60%_40%] gap-12 items-center">
                     {/* Left 60%: Headings, Buttons, Search */}
                     <div className="flex flex-col gap-[1em] items-center text-center">
                       {hero.heading_1 && (

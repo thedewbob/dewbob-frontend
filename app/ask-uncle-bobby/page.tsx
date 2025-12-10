@@ -42,6 +42,39 @@ export default async function AskUncleBobbyPage({ searchParams }: PageProps) {
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / postsPerPage);
 
+  // Generate page numbers to display (smart pagination)
+  const getPageNumbers = () => {
+    const delta = 2; // Number of pages to show on each side of current page
+    const range: (number | string)[] = [];
+    const rangeWithDots: (number | string)[] = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  const pageNumbers = getPageNumbers();
+
   return (
     <>
       <Header />
@@ -96,41 +129,102 @@ export default async function AskUncleBobbyPage({ searchParams }: PageProps) {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-12">
-                  {currentPage > 1 && (
-                    <Link
-                      href={`/ask-uncle-bobby?page=${currentPage - 1}`}
-                      className="px-4 py-2 rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
-                    >
-                      Previous
-                    </Link>
-                  )}
+                <div className="mt-12">
+                  {/* Mobile Layout: Page numbers top, Prev/Next bottom */}
+                  <div className="flex md:hidden flex-col gap-3">
+                    {/* Page Numbers */}
+                    <div className="flex flex-wrap items-center justify-center gap-1">
+                      {pageNumbers.map((pageNum, idx) => {
+                        if (pageNum === '...') {
+                          return (
+                            <span key={`ellipsis-${idx}`} className="px-2 py-1.5 text-sm text-[#2D2D3F]">
+                              ...
+                            </span>
+                          );
+                        }
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                    const isCurrentPage = pageNum === currentPage;
-                    return (
+                        const isCurrentPage = pageNum === currentPage;
+                        return (
+                          <Link
+                            key={pageNum}
+                            href={`/ask-uncle-bobby?page=${pageNum}`}
+                            className={`px-3 py-1.5 text-sm rounded-[25px] transition-colors ${
+                              isCurrentPage
+                                ? "bg-[#9C3A25] text-white"
+                                : "bg-[#FDF8F3] text-[#2D2D3F] hover:bg-[#9C3A25] hover:text-white"
+                            }`}
+                          >
+                            {pageNum}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    {/* Prev/Next Buttons */}
+                    <div className="flex items-center justify-center gap-2">
+                      {currentPage > 1 && (
+                        <Link
+                          href={`/ask-uncle-bobby?page=${currentPage - 1}`}
+                          className="px-4 py-2 text-sm rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
+                        >
+                          Previous
+                        </Link>
+                      )}
+                      {currentPage < totalPages && (
+                        <Link
+                          href={`/ask-uncle-bobby?page=${currentPage + 1}`}
+                          className="px-4 py-2 text-sm rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
+                        >
+                          Next
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout: All in one line */}
+                  <div className="hidden md:flex items-center justify-center gap-2">
+                    {currentPage > 1 && (
                       <Link
-                        key={pageNum}
-                        href={`/ask-uncle-bobby?page=${pageNum}`}
-                        className={`px-4 py-2 rounded-[25px] transition-colors ${
-                          isCurrentPage
-                            ? "bg-[#9C3A25] text-white"
-                            : "bg-[#FDF8F3] text-[#2D2D3F] hover:bg-[#9C3A25] hover:text-white"
-                        }`}
+                        href={`/ask-uncle-bobby?page=${currentPage - 1}`}
+                        className="px-6 py-3 text-base rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
                       >
-                        {pageNum}
+                        Previous
                       </Link>
-                    );
-                  })}
+                    )}
 
-                  {currentPage < totalPages && (
-                    <Link
-                      href={`/ask-uncle-bobby?page=${currentPage + 1}`}
-                      className="px-4 py-2 rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
-                    >
-                      Next
-                    </Link>
-                  )}
+                    {pageNumbers.map((pageNum, idx) => {
+                      if (pageNum === '...') {
+                        return (
+                          <span key={`ellipsis-${idx}`} className="px-3 py-3 text-base text-[#2D2D3F]">
+                            ...
+                          </span>
+                        );
+                      }
+
+                      const isCurrentPage = pageNum === currentPage;
+                      return (
+                        <Link
+                          key={pageNum}
+                          href={`/ask-uncle-bobby?page=${pageNum}`}
+                          className={`px-6 py-3 text-base rounded-[25px] transition-colors ${
+                            isCurrentPage
+                              ? "bg-[#9C3A25] text-white"
+                              : "bg-[#FDF8F3] text-[#2D2D3F] hover:bg-[#9C3A25] hover:text-white"
+                          }`}
+                        >
+                          {pageNum}
+                        </Link>
+                      );
+                    })}
+
+                    {currentPage < totalPages && (
+                      <Link
+                        href={`/ask-uncle-bobby?page=${currentPage + 1}`}
+                        className="px-6 py-3 text-base rounded-[25px] bg-[#3D7F78] text-white hover:bg-[#336B66] transition-colors"
+                      >
+                        Next
+                      </Link>
+                    )}
+                  </div>
                 </div>
               )}
             </>

@@ -9,7 +9,7 @@ export async function Footer() {
     <footer className="bg-[#2D2D3F] text-[#FDF8F3] mt-auto py-12">
       <Container>
         {/* Main Footer Content - 3 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-[25%_50%_25%] gap-8 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[25%_50%_25%] gap-8 mb-8">
           {/* Uncle Bobby Image + Tagline - 25% */}
           <div className="flex flex-col items-center md:items-start">
             {settings?.footer_image && typeof settings.footer_image === 'string' ? (
@@ -33,9 +33,9 @@ export async function Footer() {
           </div>
 
           {/* Quote - 50% */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center py-4 lg:py-0">
             <blockquote
-              className="text-2xl md:text-3xl text-center text-[#FDF8F3]"
+              className="text-xl md:text-2xl lg:text-3xl text-center text-[#FDF8F3] leading-tight"
               style={{ fontFamily: "var(--font-architects-daughter)" }}
             >
               {settings?.footer_quote || '"If you took my advice seriously, that\'s on you."'}

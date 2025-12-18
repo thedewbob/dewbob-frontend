@@ -10,6 +10,9 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Build argument for environment-specific Directus URL
+ARG DIRECTUS_URL=https://cms.dewbob.com
+
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -17,10 +20,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build Next.js app (no Directus access needed - pages generated on-demand)
-# Provide placeholder env vars for build (real values provided at runtime via docker-compose)
-# Note: DIRECTUS_TOKEN is a non-sensitive placeholder - actual token set at runtime
-ENV NEXT_PUBLIC_DIRECTUS_URL=https://cms.dewbob.com
-ENV DIRECTUS_TOKEN=build-placeholder-not-used
+# NEXT_PUBLIC_DIRECTUS_URL is baked into the build for client-side code
+# DIRECTUS_TOKEN is provided at runtime via docker-compose
+ENV NEXT_PUBLIC_DIRECTUS_URL=${DIRECTUS_URL}
 
 RUN npm run build
 

@@ -1,16 +1,56 @@
 when:
-  branch: main
+  branch: [dev, main]
   event: [push, manual]
 
 steps:
-  build-and-push:
+  build-and-push-dev:
     image: woodpeckerci/plugin-docker-buildx
+    when:
+      branch: dev
+    settings:
+      registry: registry.dewbob.com
+      repo: registry.dewbob.com/dewbob/dewbob
+      tags:
+        - dev
+        - dev-${CI_COMMIT_SHA}
+      build_args:
+        - DIRECTUS_URL=https://cms-dev.dewbob.com
+      username:
+        from_secret: REGISTRY_USER
+      password:
+        from_secret: REGISTRY_PASS
+      dockerfile: Dockerfile
+      platforms: linux/amd64
+
+  deploy-dev:
+    image: appleboy/drone-ssh
+    when:
+      branch: dev
+    depends_on:
+      - build-and-push-dev
+    settings:
+      host: 10.60.0.40
+      username: bobby
+      port: 22
+      key:
+        from_secret: SSH_PRIVATE_KEY
+      script:
+        - cd /opt/dewbob-frontend-dev
+        - docker compose pull
+        - docker compose up -d --remove-orphans
+
+  build-and-push-prod:
+    image: woodpeckerci/plugin-docker-buildx
+    when:
+      branch: main
     settings:
       registry: registry.dewbob.com
       repo: registry.dewbob.com/dewbob/dewbob
       tags:
         - latest
         - ${CI_COMMIT_SHA}
+      build_args:
+        - DIRECTUS_URL=https://cms.dewbob.com
       username:
         from_secret: REGISTRY_USER
       password:
@@ -20,8 +60,10 @@ steps:
 
   deploy-to-portainer:
     image: alpine/curl
+    when:
+      branch: main
     depends_on:
-      - build-and-push
+      - build-and-push-prod
     secrets:
       - PORTAINER_API_KEY
     commands:

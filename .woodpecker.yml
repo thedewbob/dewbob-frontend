@@ -58,18 +58,19 @@ steps:
       dockerfile: Dockerfile
       platforms: linux/amd64
 
-  deploy-to-portainer:
-    image: alpine/curl
+  deploy-prod:
+    image: appleboy/drone-ssh
     when:
       branch: main
     depends_on:
       - build-and-push-prod
-    secrets:
-      - PORTAINER_API_KEY
-    commands:
-      - |
-        echo "Triggering Portainer deployment for stack 89..."
-        curl -v -X POST \
-          -H "X-API-Key: $${PORTAINER_API_KEY}" \
-          "https://stacks.dewbob.com/api/stacks/89/deploy?endpointId=7"
-        echo "Deployment triggered"
+    settings:
+      host: 10.60.0.20
+      username: bobby
+      port: 22
+      key:
+        from_secret: SSH_PRIVATE_KEY
+      script:
+        - cd /opt/dewbob-frontend
+        - docker compose pull
+        - docker compose up -d --remove-orphans
